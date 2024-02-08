@@ -9,8 +9,9 @@ CC=gcc
 
 SRC="src/main.c"
 
-rm -f $PROGRAM_NAME
+rm -rf build
+mkdir build
 
-$CC $C_FLASGS $SRC $RAYLIB_FLASGS -o $PROGRAM_NAME
+$CC $C_FLASGS $SRC $RAYLIB_FLASGS -o ./build/$PROGRAM_NAME
 
-./$PROGRAM_NAME
+./build/$PROGRAM_NAME
