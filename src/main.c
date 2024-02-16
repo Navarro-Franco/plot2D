@@ -9,12 +9,14 @@
 //  Variables para tomar puntos
 //-------------------------------------------------------------------------
 dato ref;
-dato curva1;
-dato curva2;
-dato curva3;
-dato curva4;
-dato curva5;
-dato curva6;
+dato enfriamiento;
+dato potencia1;
+dato potencia2;
+dato potencia3;
+dato potencia4;
+dato potencia5;
+dato potencia6;
+dato potencia7;
 
 //-------------------------------------------------------------------------
 //  Variables de la camara
@@ -24,7 +26,7 @@ Camera2D camera = { 0 };
 //-------------------------------------------------------------------------
 //  size del punto a tomar 
 //-------------------------------------------------------------------------
-float brushSize = 5.0f;
+float brushSize = 2.0f;
 
 //-----------------------------------------------------------------------------
 // Program main entry point
@@ -42,7 +44,7 @@ int main(void)
 
     // NOTE: Textures MUST be loaded after Window initialization (OpenGL context is required)
     // Definicion de la imagen a analizar
-    Image curva = LoadImage("images/RAD14_CURVA.png");
+    Image curva = LoadImage("images/spotRAD14.png");
     int ImageWidth = curva.width;
     int ImageHeight = curva.height;
     ImageResize(&curva, ImageWidth, ImageHeight);
@@ -59,12 +61,13 @@ int main(void)
     action accionActual = REFERENCIA;
 
     ref.cont = 0;
-    curva1.cont = 0;
-    curva2.cont = 0;
-    curva3.cont = 0;
-    curva4.cont = 0;
-    curva5.cont = 0;
-    curva6.cont = 0;
+    enfriamiento.cont = 0;
+    potencia1.cont = 0;
+    potencia2.cont = 0;
+    potencia3.cont = 0;
+    potencia4.cont = 0;
+    potencia5.cont = 0;
+    potencia6.cont = 0;
 
     // Boton para el guardado
     Rectangle btnSaveRec = { 750, 10, 40, 30 };
@@ -107,7 +110,7 @@ int main(void)
             camera.target = mouseWorldPos;
 
             // Zoom increment
-            const float zoomIncrement = 0.125f;
+            const float zoomIncrement = 0.5f;
 
             camera.zoom += (wheel*zoomIncrement);
             if (camera.zoom < zoomIncrement) camera.zoom = zoomIncrement;
@@ -153,37 +156,44 @@ int main(void)
                 // Objetos que se mueven con la camara
                 DrawTexture(texture, screenWidth/2, screenHeight/2 + 50, WHITE);
 
+                // Dibujo todos los puntos que se tomaron hasta ahora
+                for (action i = REFERENCIA; i <= CURVA7; i++)
+                {
+                    switch (i)
+                    {
+                        case REFERENCIA:
+                            dibujarPuntos(ref, i);
+                            break;
+                        case ENFRIAMIENTO:
+                            dibujarPuntos(enfriamiento, i);
+                            break;
+                        case CURVA1:
+                            dibujarPuntos(potencia1, i);
+                            break;
+                        case CURVA2:
+                            dibujarPuntos(potencia2, i);
+                            break;
+                        case CURVA3:
+                            dibujarPuntos(potencia3, i);
+                            break;
+                        case CURVA4:
+                            dibujarPuntos(potencia4, i);
+                            break;
+                        case CURVA5:
+                            dibujarPuntos(potencia5, i);
+                            break;
+                        case CURVA6:
+                            dibujarPuntos(potencia6, i);
+                            break;
+                        case CURVA7:
+                            dibujarPuntos(potencia7, i);
+                            break;
+                    };
+                }
+
                 // > 50 para que no se dibuje encima de la barra del menu
                 if (mousePos.y > 50)
                 {
-                    // Dibujo todos los puntos que se tomaron hasta ahora
-                    for (action i = REFERENCIA; i < CURVA6; i++)
-                    {
-                        switch (i)
-                        {
-                            case REFERENCIA:
-                                dibujarPuntos(ref, i);
-                                break;
-                            case CURVA1:
-                                dibujarPuntos(curva1, i);
-                                break;
-                            case CURVA2:
-                                dibujarPuntos(curva2, i);
-                                break;
-                            case CURVA3:
-                                dibujarPuntos(curva3, i);
-                                break;
-                            case CURVA4:
-                                dibujarPuntos(curva4, i);
-                                break;
-                            case CURVA5:
-                                dibujarPuntos(curva5, i);
-                                break;
-                            case CURVA6:
-                                dibujarPuntos(curva6, i);
-                                break;
-                        };
-                    }
                     // Dibujo un circulo para indicar el color en que esta
                     Vector2 brushPos = GetScreenToWorld2D(GetMousePosition(), camera);
                     DrawCircle(brushPos.x, brushPos.y, brushSize, getColor(accionActual));
@@ -218,8 +228,97 @@ int main(void)
 			printf("Error al abrir el archivo CSV.\n");
 			return 1;
 		}
+
     // Escribo el encabezado
-    fprintf(csvFile, "Minutos, Enfriamiento, Potencia 1, Potencia 2, Potencia 3, Potencia 4, Potencia 5, Referencia");
+    fprintf(csvFile, "Minutos, Enfriamiento, Potencia 1, Potencia 2, Potencia 3, Potencia 4, Potencia 5, Potencia 6, Potencia 7, Referencia");
+    fprintf(csvFile, "\n");
+
+    // tiempo 0
+    fprintf(csvFile, "0,"); // Minutos
+    fprintf(csvFile, "0,");
+    fprintf(csvFile, "0,");
+    fprintf(csvFile, "0,");
+    fprintf(csvFile, "0,");
+    fprintf(csvFile, "0,");
+    fprintf(csvFile, "0,");
+    fprintf(csvFile, "0,");
+    fprintf(csvFile, "0,");
+    fprintf(csvFile, "%f, MAX=,", ref.curva[0].y);
+    fprintf(csvFile, "%f, MIN=", ref.curva[1].y);
+    fprintf(csvFile, "\n");
+
+    // de 0.1 a 0.9 min
+    for (size_t i = 1; i <= 9; i++)
+    {
+        fprintf(csvFile, "0.%zu,", i); // Minutos
+        fprintf(csvFile, "%f,", enfriamiento.curva[i-1].y);
+        fprintf(csvFile, "%f,", potencia1.curva[i-1].y);
+        fprintf(csvFile, "%f,", potencia2.curva[i-1].y);
+        fprintf(csvFile, "%f,", potencia3.curva[i-1].y);
+        fprintf(csvFile, "%f,", potencia4.curva[i-1].y);
+        fprintf(csvFile, "%f,", potencia5.curva[i-1].y);
+        fprintf(csvFile, "%f,", potencia6.curva[i-1].y);
+        fprintf(csvFile, "%f,", potencia7.curva[i-1].y);
+        fprintf(csvFile, "\n");
+    }
+
+    // de 1 a 9 min
+    for (size_t i = 1; i <= 9; i++)
+    {
+        fprintf(csvFile, "%zu,", i); // Minutos
+        fprintf(csvFile, "%f,", enfriamiento.curva[i+8].y);
+        fprintf(csvFile, "%f,", potencia1.curva[i+8].y);
+        fprintf(csvFile, "%f,", potencia2.curva[i+8].y);
+        fprintf(csvFile, "%f,", potencia3.curva[i+8].y);
+        fprintf(csvFile, "%f,", potencia4.curva[i+8].y);
+        fprintf(csvFile, "%f,", potencia5.curva[i+8].y);
+        fprintf(csvFile, "%f,", potencia6.curva[i+8].y);
+        fprintf(csvFile, "%f,", potencia7.curva[i+8].y);
+        fprintf(csvFile, "\n");
+    }
+
+    // de 10 a 100 min
+    for (size_t i = 1; i <= 10; i++)
+    {
+        fprintf(csvFile, "%zu" "0,", i); // Minutos
+        fprintf(csvFile, "%f,", enfriamiento.curva[i+17].y);
+        fprintf(csvFile, "%f,", potencia1.curva[i+17].y);
+        fprintf(csvFile, "%f,", potencia2.curva[i+17].y);
+        fprintf(csvFile, "%f,", potencia3.curva[i+17].y);
+        fprintf(csvFile, "%f,", potencia4.curva[i+17].y);
+        fprintf(csvFile, "%f,", potencia5.curva[i+17].y);
+        fprintf(csvFile, "%f,", potencia6.curva[i+17].y);
+        fprintf(csvFile, "%f,", potencia7.curva[i+17].y);
+        fprintf(csvFile, "\n");
+    }
+
+    fprintf(csvFile, "\n");
+    fprintf(csvFile, "\n");
+
+    fprintf(csvFile, "Minutos, Enfriamiento, Potencia 1, Potencia 2, Potencia 3, Potencia 4, Potencia 5, Potencia 6, Potencia 7");
+    fprintf(csvFile, "\n");
+
+    // de 0.1 a 0.9 min
+    for (size_t i = 0; i <= 9; i++)
+    {
+        fprintf(csvFile, "0.%zu,", i); // Minutos
+        fprintf(csvFile, "\n");
+    }
+
+    // de 1 a 9 min
+    for (size_t i = 1; i <= 9; i++)
+    {
+        fprintf(csvFile, "%zu,", i); // Minutos
+        fprintf(csvFile, "\n");
+    }
+
+    // de 10 a 100 min
+    for (size_t i = 1; i <= 10; i++)
+    {
+        fprintf(csvFile, "%zu" "0,", i); // Minutos
+        fprintf(csvFile, "\n");
+    }
+
     // Cierra el archivo CSV
     fclose(csvFile);
     return 0;
@@ -231,6 +330,9 @@ Color getColor(action accion)
     {
         case REFERENCIA:
             return GREEN;
+            break;
+        case ENFRIAMIENTO:
+            return GRAY;
             break;
         case CURVA1:
             return BLUE;
@@ -250,6 +352,9 @@ Color getColor(action accion)
         case CURVA6:
             return PINK;
             break;
+        case CURVA7:
+            return BROWN;
+            break;
         default:
             return GREEN;
             break;
@@ -263,23 +368,26 @@ int getCount(action accion)
         case REFERENCIA:
             return ref.cont;
             break;
+        case ENFRIAMIENTO:
+            return enfriamiento.cont;
+            break;
         case CURVA1:
-            return curva1.cont;
+            return potencia1.cont;
             break;
         case CURVA2:
-            return curva2.cont;
+            return potencia2.cont;
             break;
         case CURVA3:
-            return curva3.cont;
+            return potencia3.cont;
             break;
         case CURVA4:
-            return curva4.cont;
+            return potencia4.cont;
             break;
         case CURVA5:
-            return curva5.cont;
+            return potencia5.cont;
             break;
         case CURVA6:
-            return curva6.cont;
+            return potencia6.cont;
             break;
         default:
             return ref.cont;
@@ -297,29 +405,45 @@ void tomarPunto(action accion)
             ref.curva[ref.cont] = posActual;
             ref.cont++;
             break;
+
+        case ENFRIAMIENTO:
+            enfriamiento.curva[enfriamiento.cont] = posActual;
+            enfriamiento.cont++;
+            break;
+
         case CURVA1:
-            curva1.curva[curva1.cont] = posActual;
-            curva1.cont++;
+            potencia1.curva[potencia1.cont] = posActual;
+            potencia1.cont++;
             break;
+
         case CURVA2:
-            curva2.curva[curva2.cont] = posActual;
-            curva2.cont++;
+            potencia2.curva[potencia2.cont] = posActual;
+            potencia2.cont++;
             break;
+
         case CURVA3:
-            curva3.curva[curva3.cont] = posActual;
-            curva3.cont++;
+            potencia3.curva[potencia3.cont] = posActual;
+            potencia3.cont++;
             break;
+
         case CURVA4:
-            curva4.curva[curva4.cont] = posActual;
-            curva4.cont++;
+            potencia4.curva[potencia4.cont] = posActual;
+            potencia4.cont++;
             break;
+
         case CURVA5:
-            curva5.curva[curva5.cont] = posActual;
-            curva5.cont++;
+            potencia5.curva[potencia5.cont] = posActual;
+            potencia5.cont++;
             break;
+
         case CURVA6:
-            curva6.curva[curva6.cont] = posActual;
-            curva6.cont++;
+            potencia6.curva[potencia6.cont] = posActual;
+            potencia6.cont++;
+            break;
+
+        case CURVA7:
+            potencia7.curva[potencia7.cont] = posActual;
+            potencia7.cont++;
             break;
     }
 }
@@ -340,76 +464,100 @@ void removerPunto(action accion)
             ref.curva[ref.cont].y = '\0';
             break;
 
-        case CURVA1:
-            if (curva1.cont <= 0)
+        case ENFRIAMIENTO:
+            if (enfriamiento.cont <= 0)
                 return;
 
             // Decrementa para borrar el anterior
-            curva1.cont--;
+            enfriamiento.cont--;
 
             // Borro x e y
-            curva1.curva[curva1.cont].x = '\0';
-            curva1.curva[curva1.cont].y = '\0';
+            enfriamiento.curva[enfriamiento.cont].x = '\0';
+            enfriamiento.curva[enfriamiento.cont].y = '\0';
+            break;
+
+        case CURVA1:
+            if (potencia1.cont <= 0)
+                return;
+
+            // Decrementa para borrar el anterior
+            potencia1.cont--;
+
+            // Borro x e y
+            potencia1.curva[potencia1.cont].x = '\0';
+            potencia1.curva[potencia1.cont].y = '\0';
             break;
 
         case CURVA2:
-            if (curva2.cont <= 0)
+            if (potencia2.cont <= 0)
                 return;
 
             // Decrementa para borrar el anterior
-            curva2.cont--;
+            potencia2.cont--;
 
             // Borro x e y
-            curva2.curva[curva2.cont].x = '\0';
-            curva2.curva[curva2.cont].y = '\0';
+            potencia2.curva[potencia2.cont].x = '\0';
+            potencia2.curva[potencia2.cont].y = '\0';
             break;
 
         case CURVA3:
-            if (curva3.cont <= 0)
+            if (potencia3.cont <= 0)
                 return;
 
             // Decrementa para borrar el anterior
-            curva3.cont--;
+            potencia3.cont--;
 
             // Borro x e y
-            curva3.curva[curva3.cont].x = '\0';
-            curva3.curva[curva3.cont].y = '\0';
+            potencia3.curva[potencia3.cont].x = '\0';
+            potencia3.curva[potencia3.cont].y = '\0';
             break;
 
         case CURVA4:
-            if (curva4.cont <= 0)
+            if (potencia4.cont <= 0)
                 return;
 
             // Decrementa para borrar el anterior
-            curva4.cont--;
+            potencia4.cont--;
 
             // Borro x e y
-            curva4.curva[curva4.cont].x = '\0';
-            curva4.curva[curva4.cont].y = '\0';
+            potencia4.curva[potencia4.cont].x = '\0';
+            potencia4.curva[potencia4.cont].y = '\0';
             break;
 
         case CURVA5:
-            if (curva5.cont <= 0)
+            if (potencia5.cont <= 0)
                 return;
 
             // Decrementa para borrar el anterior
-            curva5.cont--;
+            potencia5.cont--;
 
             // Borro x e y
-            curva5.curva[curva5.cont].x = '\0';
-            curva5.curva[curva5.cont].y = '\0';
+            potencia5.curva[potencia5.cont].x = '\0';
+            potencia5.curva[potencia5.cont].y = '\0';
             break;
 
         case CURVA6:
-            if (curva6.cont <= 0)
+            if (potencia6.cont <= 0)
                 return;
 
             // Decrementa para borrar el anterior
-            curva6.cont--;
+            potencia6.cont--;
 
             // Borro x e y
-            curva6.curva[curva6.cont].x = '\0';
-            curva6.curva[curva6.cont].y = '\0';
+            potencia6.curva[potencia6.cont].x = '\0';
+            potencia6.curva[potencia6.cont].y = '\0';
+            break;
+
+        case CURVA7:
+            if (potencia7.cont <= 0)
+                return;
+
+            // Decrementa para borrar el anterior
+            potencia7.cont--;
+
+            // Borro x e y
+            potencia7.curva[potencia7.cont].x = '\0';
+            potencia7.curva[potencia7.cont].y = '\0';
             break;
     }
 }

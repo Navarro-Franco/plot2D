@@ -13,21 +13,23 @@
 
 #define MAX_PUNTOS 100
 
-typedef struct datos
+typedef struct dato
 {
     Vector2 curva[MAX_PUNTOS];  // Pos x e y
     int cont;                   // Contador de puntos
-}dato;
+} dato;
 
 typedef enum
 {
     REFERENCIA = 0,
+    ENFRIAMIENTO,
     CURVA1,
     CURVA2,
     CURVA3,
     CURVA4,
     CURVA5,
     CURVA6,
+    CURVA7,
 }action;
 
 Color getColor(action accion);
