@@ -9,7 +9,6 @@
 //  Variables para tomar puntos
 //-------------------------------------------------------------------------
 dato ref;
-dato enfriamiento;
 dato potencia1;
 dato potencia2;
 dato potencia3;
@@ -17,6 +16,8 @@ dato potencia4;
 dato potencia5;
 dato potencia6;
 dato potencia7;
+dato potencia8;
+dato potencia9;
 
 //-------------------------------------------------------------------------
 //  Variables de la camara
@@ -44,7 +45,7 @@ int main(void)
 
     // NOTE: Textures MUST be loaded after Window initialization (OpenGL context is required)
     // Definicion de la imagen a analizar
-    Image curva = LoadImage("images/spotRAD14.png");
+    Image curva = LoadImage("images/X39_FF_50Hz.png");
     int ImageWidth = curva.width;
     int ImageHeight = curva.height;
     ImageResize(&curva, ImageWidth, ImageHeight);
@@ -61,13 +62,15 @@ int main(void)
     action accionActual = REFERENCIA;
 
     ref.cont = 0;
-    enfriamiento.cont = 0;
     potencia1.cont = 0;
     potencia2.cont = 0;
     potencia3.cont = 0;
     potencia4.cont = 0;
     potencia5.cont = 0;
     potencia6.cont = 0;
+    potencia7.cont = 0;
+    potencia8.cont = 0;
+    potencia9.cont = 0;
 
     // Boton para el guardado
     Rectangle btnSaveRec = { 750, 10, 40, 30 };
@@ -140,7 +143,7 @@ int main(void)
         //---------------------------------------------------------------------
         if (IsKeyReleased(KEY_N))
         {
-            accionActual > CURVA6 ? accionActual = REFERENCIA : accionActual++;
+            accionActual > END-1 ? accionActual = REFERENCIA : accionActual++;
         }
 
         //---------------------------------------------------------------------
@@ -157,15 +160,12 @@ int main(void)
                 DrawTexture(texture, screenWidth/2, screenHeight/2 + 50, WHITE);
 
                 // Dibujo todos los puntos que se tomaron hasta ahora
-                for (action i = REFERENCIA; i <= CURVA7; i++)
+                for (action i = REFERENCIA; i < END; i++)
                 {
                     switch (i)
                     {
                         case REFERENCIA:
                             dibujarPuntos(ref, i);
-                            break;
-                        case ENFRIAMIENTO:
-                            dibujarPuntos(enfriamiento, i);
                             break;
                         case CURVA1:
                             dibujarPuntos(potencia1, i);
@@ -188,6 +188,13 @@ int main(void)
                         case CURVA7:
                             dibujarPuntos(potencia7, i);
                             break;
+                        case CURVA8:
+                            dibujarPuntos(potencia8, i);
+                            break;
+                        case CURVA9:
+                            dibujarPuntos(potencia9, i);
+                            break;
+                        default: break;
                     };
                 }
 
@@ -230,19 +237,18 @@ int main(void)
 		}
 
     // Escribo el encabezado
-    fprintf(csvFile, "Minutos, Enfriamiento, Potencia 1, Potencia 2, Potencia 3, Potencia 4, Potencia 5, Potencia 6, Potencia 7, Referencia");
+    fprintf(csvFile, "Minutos,");
+
+    for (action potencias = REFERENCIA + 1; potencias < END; potencias++)
+        fprintf(csvFile, "Potencia %d,", potencias );
+
+    fprintf(csvFile, "referencia,");
     fprintf(csvFile, "\n");
 
     // tiempo 0
     fprintf(csvFile, "0,"); // Minutos
-    fprintf(csvFile, "0,");
-    fprintf(csvFile, "0,");
-    fprintf(csvFile, "0,");
-    fprintf(csvFile, "0,");
-    fprintf(csvFile, "0,");
-    fprintf(csvFile, "0,");
-    fprintf(csvFile, "0,");
-    fprintf(csvFile, "0,");
+    for (action espacios = REFERENCIA + 1; espacios < END; espacios++)
+        fprintf(csvFile, "0,");
     fprintf(csvFile, "%f, MAX=,", ref.curva[0].y);
     fprintf(csvFile, "%f, MIN=", ref.curva[1].y);
     fprintf(csvFile, "\n");
@@ -251,7 +257,6 @@ int main(void)
     for (size_t i = 1; i <= 9; i++)
     {
         fprintf(csvFile, "0.%zu,", i); // Minutos
-        fprintf(csvFile, "%f,", enfriamiento.curva[i-1].y);
         fprintf(csvFile, "%f,", potencia1.curva[i-1].y);
         fprintf(csvFile, "%f,", potencia2.curva[i-1].y);
         fprintf(csvFile, "%f,", potencia3.curva[i-1].y);
@@ -259,6 +264,8 @@ int main(void)
         fprintf(csvFile, "%f,", potencia5.curva[i-1].y);
         fprintf(csvFile, "%f,", potencia6.curva[i-1].y);
         fprintf(csvFile, "%f,", potencia7.curva[i-1].y);
+        fprintf(csvFile, "%f,", potencia8.curva[i-1].y);
+        fprintf(csvFile, "%f,", potencia9.curva[i-1].y);
         fprintf(csvFile, "\n");
     }
 
@@ -266,7 +273,6 @@ int main(void)
     for (size_t i = 1; i <= 9; i++)
     {
         fprintf(csvFile, "%zu,", i); // Minutos
-        fprintf(csvFile, "%f,", enfriamiento.curva[i+8].y);
         fprintf(csvFile, "%f,", potencia1.curva[i+8].y);
         fprintf(csvFile, "%f,", potencia2.curva[i+8].y);
         fprintf(csvFile, "%f,", potencia3.curva[i+8].y);
@@ -274,6 +280,8 @@ int main(void)
         fprintf(csvFile, "%f,", potencia5.curva[i+8].y);
         fprintf(csvFile, "%f,", potencia6.curva[i+8].y);
         fprintf(csvFile, "%f,", potencia7.curva[i+8].y);
+        fprintf(csvFile, "%f,", potencia8.curva[i+8].y);
+        fprintf(csvFile, "%f,", potencia9.curva[i+8].y);
         fprintf(csvFile, "\n");
     }
 
@@ -281,7 +289,6 @@ int main(void)
     for (size_t i = 1; i <= 10; i++)
     {
         fprintf(csvFile, "%zu" "0,", i); // Minutos
-        fprintf(csvFile, "%f,", enfriamiento.curva[i+17].y);
         fprintf(csvFile, "%f,", potencia1.curva[i+17].y);
         fprintf(csvFile, "%f,", potencia2.curva[i+17].y);
         fprintf(csvFile, "%f,", potencia3.curva[i+17].y);
@@ -289,13 +296,21 @@ int main(void)
         fprintf(csvFile, "%f,", potencia5.curva[i+17].y);
         fprintf(csvFile, "%f,", potencia6.curva[i+17].y);
         fprintf(csvFile, "%f,", potencia7.curva[i+17].y);
+        fprintf(csvFile, "%f,", potencia8.curva[i+17].y);
+        fprintf(csvFile, "%f,", potencia9.curva[i+17].y);
         fprintf(csvFile, "\n");
     }
 
     fprintf(csvFile, "\n");
     fprintf(csvFile, "\n");
 
-    fprintf(csvFile, "Minutos, Enfriamiento, Potencia 1, Potencia 2, Potencia 3, Potencia 4, Potencia 5, Potencia 6, Potencia 7");
+    // Escribo el encabezado
+    fprintf(csvFile, "Minutos,");
+
+    for (action potencias = REFERENCIA + 1; potencias < END; potencias++)
+        fprintf(csvFile, "Potencia %d,", potencias );
+
+    fprintf(csvFile, "referencia,");
     fprintf(csvFile, "\n");
 
     // de 0.1 a 0.9 min
@@ -331,30 +346,43 @@ Color getColor(action accion)
         case REFERENCIA:
             return GREEN;
             break;
-        case ENFRIAMIENTO:
+
+        case CURVA1:
             return GRAY;
             break;
-        case CURVA1:
-            return BLUE;
-            break;
+
         case CURVA2:
-            return RED;
-            break;
-        case CURVA3:
             return YELLOW;
             break;
-        case CURVA4:
+
+        case CURVA3:
             return ORANGE;
             break;
-        case CURVA5:
-            return PURPLE;
-            break;
-        case CURVA6:
+
+        case CURVA4:
             return PINK;
             break;
-        case CURVA7:
-            return BROWN;
+
+        case CURVA5:
+            return RED;
             break;
+
+        case CURVA6:
+            return MAGENTA;
+            break;
+
+        case CURVA7:
+            return LIME;
+            break;
+
+        case CURVA8:
+            return SKYBLUE;
+            break;
+
+        case CURVA9:
+            return PURPLE;
+            break;
+
         default:
             return GREEN;
             break;
@@ -368,27 +396,43 @@ int getCount(action accion)
         case REFERENCIA:
             return ref.cont;
             break;
-        case ENFRIAMIENTO:
-            return enfriamiento.cont;
-            break;
+
         case CURVA1:
             return potencia1.cont;
             break;
+
         case CURVA2:
             return potencia2.cont;
             break;
+
         case CURVA3:
             return potencia3.cont;
             break;
+
         case CURVA4:
             return potencia4.cont;
             break;
+
         case CURVA5:
             return potencia5.cont;
             break;
+
         case CURVA6:
             return potencia6.cont;
             break;
+
+        case CURVA7:
+            return potencia7.cont;
+            break;
+
+        case CURVA8:
+            return potencia8.cont;
+            break;
+
+        case CURVA9:
+            return potencia9.cont;
+            break;
+
         default:
             return ref.cont;
             break;
@@ -404,11 +448,6 @@ void tomarPunto(action accion)
         case REFERENCIA:
             ref.curva[ref.cont] = posActual;
             ref.cont++;
-            break;
-
-        case ENFRIAMIENTO:
-            enfriamiento.curva[enfriamiento.cont] = posActual;
-            enfriamiento.cont++;
             break;
 
         case CURVA1:
@@ -445,6 +484,17 @@ void tomarPunto(action accion)
             potencia7.curva[potencia7.cont] = posActual;
             potencia7.cont++;
             break;
+
+        case CURVA8:
+            potencia8.curva[potencia8.cont] = posActual;
+            potencia8.cont++;
+            break;
+
+        case CURVA9:
+            potencia9.curva[potencia9.cont] = posActual;
+            potencia9.cont++;
+            break;
+        default: break;
     }
 }
 
@@ -462,18 +512,6 @@ void removerPunto(action accion)
             // Borro x e y
             ref.curva[ref.cont].x = '\0';
             ref.curva[ref.cont].y = '\0';
-            break;
-
-        case ENFRIAMIENTO:
-            if (enfriamiento.cont <= 0)
-                return;
-
-            // Decrementa para borrar el anterior
-            enfriamiento.cont--;
-
-            // Borro x e y
-            enfriamiento.curva[enfriamiento.cont].x = '\0';
-            enfriamiento.curva[enfriamiento.cont].y = '\0';
             break;
 
         case CURVA1:
@@ -559,6 +597,31 @@ void removerPunto(action accion)
             potencia7.curva[potencia7.cont].x = '\0';
             potencia7.curva[potencia7.cont].y = '\0';
             break;
+
+        case CURVA8:
+            if (potencia8.cont <= 0)
+                return;
+
+            // Decrementa para borrar el anterior
+            potencia8.cont--;
+
+            // Borro x e y
+            potencia8.curva[potencia8.cont].x = '\0';
+            potencia8.curva[potencia8.cont].y = '\0';
+            break;
+
+        case CURVA9:
+            if (potencia9.cont <= 0)
+                return;
+
+            // Decrementa para borrar el anterior
+            potencia9.cont--;
+
+            // Borro x e y
+            potencia9.curva[potencia9.cont].x = '\0';
+            potencia9.curva[potencia9.cont].y = '\0';
+            break;
+        default: break;
     }
 }
 

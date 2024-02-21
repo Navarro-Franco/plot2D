@@ -22,7 +22,6 @@ typedef struct dato
 typedef enum
 {
     REFERENCIA = 0,
-    ENFRIAMIENTO,
     CURVA1,
     CURVA2,
     CURVA3,
@@ -30,6 +29,9 @@ typedef enum
     CURVA5,
     CURVA6,
     CURVA7,
+    CURVA8,
+    CURVA9,
+    END
 }action;
 
 Color getColor(action accion);
