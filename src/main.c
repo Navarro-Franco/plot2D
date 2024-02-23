@@ -31,7 +31,7 @@ int main(void)
 
     // NOTE: Textures MUST be loaded after Window initialization (OpenGL context is required)
     // Definicion de la imagen a analizar
-    Image curva = LoadImage("images/X39_FF_50Hz.png");
+    Image curva = LoadImage("images/X76_FG.png");
     int ImageWidth = curva.width;
     int ImageHeight = curva.height;
     ImageResize(&curva, ImageWidth, ImageHeight);
@@ -51,6 +51,14 @@ int main(void)
 
     // Creo las curvas
     dato *curvas = (dato *)malloc(potencias * sizeof(dato));
+
+    // Limpio valores basura
+    for (int p = 0; p < potencias; p++)
+        for (int i = 0; i < MAX_PUNTOS; i++)
+        {
+            curvas[p].curva[i].x = 0;
+            curvas[p].curva[i].y = 0;
+        }
 
     // Limpio los contadores 
     for (int i = 0; i < potencias; i++)
@@ -221,7 +229,7 @@ int main(void)
     fprintf(csvFile, "Minutos,");
 
     for (int i = 0; i < potencias; i++)
-        fprintf(csvFile, "Potencia %d,", i+1);
+        fprintf(csvFile, "Potencia %d,", i);
 
     fprintf(csvFile, "referencia,");
     fprintf(csvFile, "\n");
@@ -242,7 +250,7 @@ int main(void)
     {
         fprintf(csvFile, "0.%zu,", t);
 
-        for (size_t p = 1; p < potencias; p++)
+        for (size_t p = 1; p <= potencias; p++)
             fprintf(csvFile, "%f,", curvas[p].curva[t-1].y);
 
         fprintf(csvFile, "\n");
@@ -253,7 +261,7 @@ int main(void)
     {
         fprintf(csvFile, "%zu,", t);
 
-        for (size_t p = 1; p < potencias; p++)
+        for (size_t p = 1; p <= potencias; p++)
             fprintf(csvFile, "%f,", curvas[p].curva[t+8].y);
 
         fprintf(csvFile, "\n");
@@ -264,7 +272,7 @@ int main(void)
     {
         fprintf(csvFile, "%zu" "0,", t);
 
-        for (size_t p = 0; p < potencias; p++)
+        for (size_t p = 1; p <= potencias; p++)
             fprintf(csvFile, "%f,", curvas[p].curva[t+17].y);
 
         fprintf(csvFile, "\n");
