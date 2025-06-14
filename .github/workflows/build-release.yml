@@ -6,10 +6,10 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - run: |
-        mkdir build-linux
-        cd build-linux
-        cmake ..
-        make
+          mkdir build-linux
+          cd build-linux
+          cmake ..
+          make
       - uses: actions/upload-artifact@v3
         with:
           name: plot2D-linux
