@@ -1,0 +1,57 @@
+name: Build and Release Executable
+
+on:
+  push:
+    tags:
+      - "v*"  # Se activa cuando se hace push de un tag que empieza con "v" (ej: v1.0.0)
+
+        jobs:
+          build-linux:
+            runs-on: ubuntu-latest
+            steps:
+              - uses: actions/checkout@v4
+              - run: |
+                mkdir build-linux
+                cd build-linux
+                cmake ..
+                make
+              - uses: actions/upload-artifact@v3
+                with:
+                  name: plot2D-linux
+                  path: build-linux/plot2D
+
+          build-windows:
+            runs-on: ubuntu-latest  # Usa un runner de Linux (más fácil para cross-compilar a Windows)
+
+            steps:
+              - name: Checkout repository
+                uses: actions/checkout@v4
+
+              - name: Install MinGW (compilador para Windows)
+                run: |
+                  sudo apt-get update
+                  sudo apt-get install -y mingw-w64
+
+              - name: Install Raylib (dependencia para Windows)
+                run: |
+                  sudo apt-get install -y libraylib-dev:mingw-w64
+
+              - name: Configure CMake (compilación cruzada)
+                run: |
+                  mkdir build
+                  cd build
+                  cmake -DCMAKE_TOOLCHAIN_FILE=../cmake/mingw-toolchain.cmake ..
+
+              - name: Build the project
+                run: |
+                  make
+
+              - name: Upload Release Asset
+                uses: actions/upload-release-asset@v1
+                env:
+                  GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}  # Token automático de GitHub
+                  with:
+                    upload_url: ${{ github.event.release.upload_url }}  # URL del release
+                    asset_path: ./build/plot2D.exe  # Ruta del ejecutable generado
+                    asset_name: plot2D.exe  # Nombre del archivo en el release
+                    asset_content_type: application/octet-stream  # Tipo MIME para un .exe
