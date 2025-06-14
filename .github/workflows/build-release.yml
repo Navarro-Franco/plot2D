@@ -45,8 +45,8 @@ jobs:
         uses: actions/upload-release-asset@v1
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}  # Token automático de GitHub
-          with:
-            upload_url: ${{ github.event.release.upload_url }}  # URL del release
-            asset_path: ./build/plot2D.exe  # Ruta del ejecutable generado
-            asset_name: plot2D.exe  # Nombre del archivo en el release
-            asset_content_type: application/octet-stream  # Tipo MIME para un .exe
+        with:
+          upload_url: ${{ github.event.release.upload_url }}  # URL del release
+          asset_path: ./build/plot2D.exe  # Ruta del ejecutable generado
+          asset_name: plot2D.exe  # Nombre del archivo en el release
+          asset_content_type: application/octet-stream  # Tipo MIME para un .exe
